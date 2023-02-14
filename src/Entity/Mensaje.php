@@ -31,6 +31,9 @@ class Mensaje
     #[ORM\OneToMany(mappedBy: 'mensaje', targetEntity: User::class)]
     private Collection $user;
 
+    #[ORM\Column]
+    private ?int $juez = null;
+
     public function __construct()
     {
         $this->modo = new ArrayCollection();
@@ -153,6 +156,18 @@ class Mensaje
                 $user->setMensaje(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getJuez(): ?int
+    {
+        return $this->juez;
+    }
+
+    public function setJuez(int $juez): self
+    {
+        $this->juez = $juez;
 
         return $this;
     }
