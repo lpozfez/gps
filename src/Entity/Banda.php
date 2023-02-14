@@ -90,5 +90,9 @@ class Banda
         return $this;
     }
 
+    public function toString(){
+        //return +' / '+;
+    }
+
 
 }
