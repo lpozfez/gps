@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -26,6 +28,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Mensaje::class)]
+    private Collection $mensajes;
+
+    public function __construct()
+    {
+        $this->mensajes = new ArrayCollection();
+    }
+
+
 
     public function getId(): ?int
     {
@@ -96,4 +108,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
     }
+
+    /**
+     * @return Collection<int, Mensaje>
+     */
+    public function getMensajes(): Collection
+    {
+        return $this->mensajes;
+    }
+
+    public function addMensajes(Mensaje $mensajes): self
+    {
+        if (!$this->mensajes->contains($mensajes)) {
+            $this->mensajes->add($mensajes);
+            $mensajes->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMensajes(Mensaje $mensajes): self
+    {
+        if ($this->mensajes->removeElement($mensajes)) {
+            // set the owning side to null (unless already changed)
+            if ($mensajes->getUser() === $this) {
+                $mensajes->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+
 }

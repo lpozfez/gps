@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ModoRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ModoRepository::class)]
@@ -16,8 +18,16 @@ class Modo
     #[ORM\Column(length: 50)]
     private ?string $nombre = null;
 
-    #[ORM\ManyToOne(inversedBy: 'modo')]
-    private ?Mensaje $mensaje = null;
+    #[ORM\OneToMany(mappedBy: 'modo', targetEntity: Mensaje::class)]
+    private Collection $mensajes;
+
+    public function __construct()
+    {
+        $this->mensajes = new ArrayCollection();
+    }
+
+    
+
 
     public function getId(): ?int
     {
@@ -36,15 +46,36 @@ class Modo
         return $this;
     }
 
-    public function getMensaje(): ?Mensaje
+    /**
+     * @return Collection<int, Mensaje>
+     */
+    public function getMensajes(): Collection
     {
-        return $this->mensaje;
+        return $this->mensajes;
     }
 
-    public function setMensaje(?Mensaje $mensaje): self
+    public function addMensaje(Mensaje $mensaje): self
     {
-        $this->mensaje = $mensaje;
+        if (!$this->mensajes->contains($mensaje)) {
+            $this->mensajes->add($mensaje);
+            $mensaje->setModo($this);
+        }
 
         return $this;
     }
+
+    public function removeMensaje(Mensaje $mensaje): self
+    {
+        if ($this->mensajes->removeElement($mensaje)) {
+            // set the owning side to null (unless already changed)
+            if ($mensaje->getModo() === $this) {
+                $mensaje->setModo(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+
 }

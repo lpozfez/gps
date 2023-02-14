@@ -19,26 +19,26 @@ class Mensaje
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $fecha = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?bool $validado = null;
 
-    #[ORM\OneToMany(mappedBy: 'mensaje', targetEntity: Modo::class)]
-    private Collection $modo;
+    #[ORM\ManyToOne(inversedBy: 'user')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
-    #[ORM\OneToMany(mappedBy: 'mensaje', targetEntity: Banda::class)]
-    private Collection $banda;
+    #[ORM\ManyToOne(inversedBy: 'banda')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Banda $banda = null;
 
-    #[ORM\OneToMany(mappedBy: 'mensaje', targetEntity: User::class)]
-    private Collection $user;
+    #[ORM\ManyToOne(inversedBy: 'modo')]
+    private ?Modo $modo = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $juez = null;
+
 
     public function __construct()
     {
-        $this->modo = new ArrayCollection();
-        $this->banda = new ArrayCollection();
-        $this->user = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -63,101 +63,60 @@ class Mensaje
         return $this->validado;
     }
 
-    public function setValidado(bool $validado): self
+    public function setValidado(?bool $validado): self
     {
         $this->validado = $validado;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Modo>
-     */
-    public function getModo(): Collection
-    {
-        return $this->modo;
-    }
-
-    public function addModo(Modo $modo): self
-    {
-        if (!$this->modo->contains($modo)) {
-            $this->modo->add($modo);
-            $modo->setMensaje($this);
-        }
-
-        return $this;
-    }
-
-    public function removeModo(Modo $modo): self
-    {
-        if ($this->modo->removeElement($modo)) {
-            // set the owning side to null (unless already changed)
-            if ($modo->getMensaje() === $this) {
-                $modo->setMensaje(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Banda>
-     */
-    public function getBanda(): Collection
-    {
-        return $this->banda;
-    }
-
-    public function addBanda(Banda $banda): self
-    {
-        if (!$this->banda->contains($banda)) {
-            $this->banda->add($banda);
-            $banda->setMensaje($this);
-        }
-
-        return $this;
-    }
-
-    public function removeBanda(Banda $banda): self
-    {
-        if ($this->banda->removeElement($banda)) {
-            // set the owning side to null (unless already changed)
-            if ($banda->getMensaje() === $this) {
-                $banda->setMensaje(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUser(): Collection
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function addUser(User $user): self
+    public function setUser(?User $user): self
     {
-        if (!$this->user->contains($user)) {
-            $this->user->add($user);
-            $user->setMensaje($this);
-        }
+        $this->user = $user;
 
         return $this;
     }
 
-    public function removeUser(User $user): self
+    public function getBanda(): ?Banda
     {
-        if ($this->user->removeElement($user)) {
-            // set the owning side to null (unless already changed)
-            if ($user->getMensaje() === $this) {
-                $user->setMensaje(null);
-            }
-        }
+        return $this->banda;
+    }
+
+    public function setBanda(?Banda $banda): self
+    {
+        $this->banda = $banda;
 
         return $this;
+    }
+
+    public function getModo(): ?Modo
+    {
+        return $this->modo;
+    }
+
+    public function setModo(?Modo $modo): self
+    {
+        $this->modo = $modo;
+
+        return $this;
+    }
+
+    public function toArray() 
+    { 
+        return [ 
+            'id' => $this->getId(), 
+            'fecha' => $this->getFecha(), 
+            'validado' => $this->isValidado(),
+            'modo' => $this->getModo(),
+            'banda' => $this->getBanda(),
+            'user' => $this->getUser(), 
+            'juez' => $this->getJuez(),
+        ]; 
     }
 
     public function getJuez(): ?int
@@ -165,7 +124,7 @@ class Mensaje
         return $this->juez;
     }
 
-    public function setJuez(int $juez): self
+    public function setJuez(?int $juez): self
     {
         $this->juez = $juez;
 
